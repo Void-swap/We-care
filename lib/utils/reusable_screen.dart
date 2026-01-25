@@ -1,16 +1,17 @@
-import 'package:bloom/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:we_care/utils/colors.dart';
 
 class CustomSplash extends StatefulWidget {
-  const CustomSplash(
-      {super.key,
-      required this.image,
-      required this.title,
-      this.subTitle,
-      this.buttonName,
-      this.nextPath,
-      this.subTitle2});
+  const CustomSplash({
+    super.key,
+    required this.image,
+    required this.title,
+    this.subTitle,
+    this.buttonName,
+    this.nextPath,
+    this.subTitle2,
+  });
   final String image;
   final String title;
   final String? subTitle;
@@ -41,31 +42,30 @@ class _CustomSplashState extends State<CustomSplash> {
             SizedBox(),
             Column(
               children: [
-                SvgPicture.asset(
-                  widget.image,
-                  height: 200,
-                ),
+                SvgPicture.asset(widget.image, height: 200),
                 SizedBox(height: 20),
                 Text(
                   widget.title,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: primaryBlack,
-                      fontFamily: "Poppins",
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.none),
+                    color: primaryBlack,
+                    fontFamily: "Poppins",
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.none,
+                  ),
                 ),
                 if (widget.subTitle != null && widget.subTitle2 == null)
                   Text(
                     widget.subTitle!,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: primaryBlack,
-                        fontFamily: "Poppins",
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        decoration: TextDecoration.none),
+                      color: primaryBlack,
+                      fontFamily: "Poppins",
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      decoration: TextDecoration.none,
+                    ),
                   ),
                 if (widget.subTitle2 != null && widget.subTitle != null)
                   Row(
@@ -74,20 +74,22 @@ class _CustomSplashState extends State<CustomSplash> {
                       Text(
                         widget.subTitle!,
                         style: TextStyle(
-                            fontFamily: "Poppins",
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                            color: primaryBlack,
-                            decoration: TextDecoration.none),
+                          fontFamily: "Poppins",
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: primaryBlack,
+                          decoration: TextDecoration.none,
+                        ),
                       ),
                       Text(
                         widget.subTitle2!,
                         style: TextStyle(
-                            fontFamily: "Poppins",
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                            color: orange,
-                            decoration: TextDecoration.none),
+                          fontFamily: "Poppins",
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: primaryGreen,
+                          decoration: TextDecoration.none,
+                        ),
                       ),
                     ],
                   ),
@@ -101,10 +103,12 @@ class _CustomSplashState extends State<CustomSplash> {
                 child: ElevatedButton(
                   onPressed: () => widget.nextPath != ""
                       ? Navigator.pushReplacementNamed(
-                          context, widget.nextPath!)
+                          context,
+                          widget.nextPath!,
+                        )
                       : Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: orange,
+                    backgroundColor: primaryGreen,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

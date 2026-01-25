@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -8,18 +10,27 @@ import 'package:we_care/screens/issue.dart';
 import 'package:we_care/screens/signIn.dart';
 import 'package:we_care/screens/splash.dart';
 import 'package:we_care/utils/colors.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    //for APP initialize in main & web in future
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyBG4zVqMJ7sd6ZvGKkryAdf2be0mdYkGh4",
-      projectId: "signin-signup-60421",
-      messagingSenderId: "100706700423",
-      appId: "1:100706700423:web:5b454d27f516f5836d7c22",
-    ),
+  // await Firebase.initializeApp(
+  //for APP initialize in main & web in future
+  //   options: const FirebaseOptions(
+  //     apiKey: "AIzaSyBpZcfdbZoBX_rHNa7K7TMNU7Y-yjoFzlk",
+  //     projectId: "mumbai-hacks9",
+  //     storageBucket: "mumbai-hacks9.appspot.com",
+  //     messagingSenderId: "727309139299",
+  //     appId: "1:727309139299:web:71f15c8008a12a95d6e756",
+  //   ),
+  // );
+  await GetStorage.init();
+
+  await Supabase.initialize(
+    url: 'https://poelrmrksvtixrusvjuo.supabase.co',
+    anonKey: 'sb_publishable_YN4mrKoziel0Qyp9Cj6_jQ_B76-_6xs',
   );
 
   runApp(const MyApp());
@@ -32,22 +43,110 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Poppins'),
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            final user = snapshot.data;
-            if (user != null) {
-              return const SplashScreen(nextPage: HomePage());
-            } else {
-              return const SplashScreen(nextPage: SignInScreen());
-            }
-          } else {
-            return const CircularProgressIndicator();
-          }
-        },
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/registerOrLogin': (context) => const RegisterLoginScreen(),
+        '/home': (context) => const HomePage(),
+
+        '/verifyMe': (context) => const CircularProgressIndicator(),
+        '/createEvent': (context) => const CircularProgressIndicator(),
+        '/verifyEvent': (context) => const CircularProgressIndicator(),
+        '/createVenue': (context) => const CircularProgressIndicator(),
+        '/createCareer': (context) => const CircularProgressIndicator(),
+        '/myEvents': (context) => const CircularProgressIndicator(),
+      },
+      theme: ThemeData(
+        primaryColor: darkGreen,
+        secondaryHeaderColor: const Color(0xFF9262BF),
+        hintColor: const Color(0xFF20706B),
+        scaffoldBackgroundColor: primaryWhite,
+        cardColor: const Color(0xFFFFFFFF),
+        // inputDecorationTheme: InputDecorationTheme(
+        //   fillColor: const Color(0xFFf2f2f2),
+        //   filled: true,
+        //   enabledBorder: OutlineInputBorder(
+        //     borderRadius: BorderRadius.circular(8),
+        //     borderSide: const BorderSide(color: primaryBlack, width: 0.9),
+        //   ),
+        //   focusedBorder: OutlineInputBorder(
+        //     borderRadius: BorderRadius.circular(8),
+        //     borderSide: const BorderSide(color: darkGreen, width: 1.5),
+        //   ),
+        //   labelStyle: const TextStyle(
+        //     fontSize: 14,
+        //     fontWeight: FontWeight.w400,
+        //     color: primaryBlack,
+        //   ),
+        //   prefixIconConstraints: const BoxConstraints(
+        //     minWidth: 40,
+        //     minHeight: 40,
+        //   ),
+        //   suffixIconColor: primaryBlack,
+        // ),
+        // appBarTheme: const AppBarTheme(
+        //   elevation: 0,
+        //   backgroundColor: primaryWhite,
+        //   titleTextStyle: TextStyle(
+        //     fontWeight: FontWeight.w700,
+        //     color: primaryBlack,
+        //     fontSize: 24,
+        //     fontFamily: "Poppins",
+        //   ),
+        // ),
+        // snackBarTheme: const SnackBarThemeData(
+        //   backgroundColor: darkGreen,
+        //   contentTextStyle: TextStyle(color: primaryWhite),
+        //   actionTextColor: primaryBlack,
+        //   behavior: SnackBarBehavior.floating,
+        //   insetPadding: EdgeInsets.all(8.0),
+        //   shape: RoundedRectangleBorder(
+        //     borderRadius: BorderRadius.all(Radius.circular(8)),
+        //   ),
+        // ),
+        // buttonTheme: const ButtonThemeData(
+        //   buttonColor: darkGreen,
+        //   textTheme: ButtonTextTheme.primary,
+        // ),
+        // fontFamily: 'Poppins',
+        // colorScheme: const ColorScheme(
+        //   primary: darkGreen,
+        //   secondary: Color(0xFF9262BF),
+        //   surface: Color(0xFFFFFFFF),
+        //   background: Color(0xFFFFFFFF),
+        //   error: Colors.red,
+        //   onPrimary: Colors.white,
+        //   onSecondary: Colors.white,
+        //   onSurface: Color(0xFF121212),
+        //   onBackground: Color(0xFF121212),
+        //   onError: Colors.white,
+        //   brightness: Brightness.light,
+        // ).copyWith(background: Color(0xFFFFFFFF)),
+        // textTheme: const TextTheme(
+        //   bodyMedium: TextStyle(color: primaryBlack, fontSize: 18),
+        //   bodySmall: TextStyle(
+        //     color: primaryBlack,
+        //     fontSize: 14,
+        //     fontWeight: FontWeight.w400,
+        //   ),
+        //),
       ),
+
+      // home: StreamBuilder<User?>(
+      //   stream: FirebaseAuth.instance.authStateChanges(),
+      //   builder: (context, snapshot) {
+      //     if (snapshot.connectionState == ConnectionState.active) {
+      //       final user = snapshot.data;
+      //       if (user != null) {
+      //         return const SplashScreen(nextPage: HomePage());
+      //       } else {
+      //         return const SplashScreen(nextPage: RegisterLoginScreen());
+      //       }
+      //     } else {
+      //       return const CircularProgressIndicator();
+      //     }
+      //   },
+      // ),
       // initialRoute: '/',
     );
   }
@@ -63,7 +162,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [InitialScreen(), IssueScreen(), ProfilePage()];
+  final List<Widget> _pages = [
+    const InitialScreen(),
+    const IssueScreen(),
+    const ProfilePage(),
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -147,9 +250,9 @@ class _IntroScreenState extends State<IntroScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 25),
-            Padding(
-              padding: const EdgeInsets.only(left: 25, right: 25),
-              child: const Row(
+            const Padding(
+              padding: EdgeInsets.only(left: 25, right: 25),
+              child: Row(
                 children: [
                   Text(
                     "Fix in",
@@ -171,9 +274,9 @@ class _IntroScreenState extends State<IntroScreen> {
               ),
             ),
             const SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.only(left: 25, right: 25),
-              child: const Text(
+            const Padding(
+              padding: EdgeInsets.only(left: 25, right: 25),
+              child: Text(
                 "Navigating crisis with confidence",
                 style: TextStyle(color: Colors.black, fontSize: 18),
                 textAlign: TextAlign.left,
@@ -199,18 +302,23 @@ class CustomTextField extends StatelessWidget {
   final String hintText;
   final IconData icon;
   final bool obscureText;
+  final TextEditingController controller;
+  final VoidCallback? toggleVisibility;
 
   const CustomTextField({
     super.key,
     required this.hintText,
     required this.icon,
     this.obscureText = false,
+    required this.controller,
+    this.toggleVisibility,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       obscureText: obscureText,
+      controller: controller,
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: primaryBlack),
         hintText: hintText,
@@ -220,6 +328,15 @@ class CustomTextField extends StatelessWidget {
           vertical: 16,
           horizontal: 10,
         ),
+        suffixIcon: (hintText == "Confirm Password" || hintText == "Password")
+            ? IconButton(
+                icon: Icon(
+                  obscureText ? Icons.visibility_off : Icons.visibility,
+                  color: obscureText ? primaryGrey : darkGreen,
+                ),
+                onPressed: toggleVisibility,
+              )
+            : null,
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: primaryGrey),
           borderRadius: BorderRadius.circular(7),
@@ -268,7 +385,9 @@ class ProfilePage extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => SignInScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const RegisterLoginScreen(),
+                    ),
                   );
                 },
                 child: Image.asset("assets/images/logout.png"),

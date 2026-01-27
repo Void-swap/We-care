@@ -247,8 +247,6 @@ class _FormScreenState extends State<FormScreen> {
   late String contacts;
   final supabase = Supabase.instance.client;
 
-  String get storedEmail => box.read('userEmail') ?? "no mail";
-
   @override
   void initState() {
     super.initState();
@@ -559,7 +557,7 @@ class _FormScreenState extends State<FormScreen> {
                         ),
                         const SizedBox(height: 30),
                         TextFormField(
-                          initialValue: storedEmail,
+                          initialValue: widget.email,
                           readOnly: true,
                           style: const TextStyle(color: primaryBlack),
                           decoration: InputDecoration(
@@ -738,7 +736,7 @@ class _FormScreenState extends State<FormScreen> {
                             'name': name,
                             'address': '',
                             'contacts': contacts,
-                            'email': storedEmail,
+                            'email': widget.email,
                             'is_verified': "Not Applied",
                             'social_media_links': '',
                             'interests': [],

@@ -361,7 +361,7 @@ class _RegisterLoginScreenState extends State<RegisterLoginScreen> {
               children: [
                 const SizedBox(height: 30),
                 Text(
-                  _isRegisterMode ? "Register to Wecare" : "Login to Wecare",
+                  _isRegisterMode ? "Register to Spot It" : "Login to Spot It",
                   style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w500,
@@ -446,7 +446,7 @@ class _RegisterLoginScreenState extends State<RegisterLoginScreen> {
                     Text(
                       _isRegisterMode
                           ? "Already have an account?"
-                          : "New to Wecare?",
+                          : "New to Spot It?",
                     ),
                     InkWell(
                       onTap: () {

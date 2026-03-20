@@ -39,15 +39,15 @@ class _CustomSplashState extends State<CustomSplash> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(),
+            const SizedBox(),
             Column(
               children: [
                 SvgPicture.asset(widget.image, height: 200),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Text(
                   widget.title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: primaryBlack,
                     fontFamily: "Poppins",
                     fontSize: 22,
@@ -59,7 +59,7 @@ class _CustomSplashState extends State<CustomSplash> {
                   Text(
                     widget.subTitle!,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: primaryBlack,
                       fontFamily: "Poppins",
                       fontSize: 16,
@@ -73,7 +73,7 @@ class _CustomSplashState extends State<CustomSplash> {
                     children: [
                       Text(
                         widget.subTitle!,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: "Poppins",
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
@@ -83,11 +83,11 @@ class _CustomSplashState extends State<CustomSplash> {
                       ),
                       Text(
                         widget.subTitle2!,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: "Poppins",
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
-                          color: primaryGreen,
+                          color: darkGreen,
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -95,7 +95,7 @@ class _CustomSplashState extends State<CustomSplash> {
                   ),
               ],
             ),
-            SizedBox(),
+            const SizedBox(),
             if (widget.buttonName != null && widget.nextPath != null)
               SizedBox(
                 height: 50,
@@ -108,14 +108,14 @@ class _CustomSplashState extends State<CustomSplash> {
                         )
                       : Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryGreen,
+                    backgroundColor: darkGreen,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Text(
                     widget.buttonName!,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: primaryWhite,
                       fontSize: 22,
                       fontWeight: FontWeight.w600,

@@ -7,6 +7,9 @@ import 'package:iconly/iconly.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:we_care/screens/first.dart';
 import 'package:we_care/screens/issue.dart';
+import 'package:we_care/screens/profile/edit_profile.dart';
+import 'package:we_care/screens/profile/profile_screen.dart';
+import 'package:we_care/screens/profile/verify_me.dart';
 import 'package:we_care/screens/signIn.dart';
 import 'package:we_care/screens/splash.dart';
 import 'package:we_care/utils/colors.dart';
@@ -48,8 +51,9 @@ class MyApp extends StatelessWidget {
         '/': (context) => const SplashScreen(),
         '/registerOrLogin': (context) => const RegisterLoginScreen(),
         '/home': (context) => const HomePage(),
+        '/editProfile': (context) => const EditProfileScreen(),
 
-        '/verifyMe': (context) => const CircularProgressIndicator(),
+        '/verifyMe': (context) => const VerifyMe(),
         '/createEvent': (context) => const CircularProgressIndicator(),
         '/verifyEvent': (context) => const CircularProgressIndicator(),
         '/createVenue': (context) => const CircularProgressIndicator(),
@@ -165,7 +169,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     const InitialScreen(),
     const IssueScreen(),
-    const ProfilePage(),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {

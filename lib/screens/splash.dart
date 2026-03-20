@@ -57,7 +57,9 @@ class _SplashScreenState extends State<SplashScreen> {
         padding: const EdgeInsets.only(left: 25, right: 25),
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        decoration: const BoxDecoration(color: primaryWhite),
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(254, 254, 254, 1),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,

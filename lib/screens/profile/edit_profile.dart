@@ -6,6 +6,8 @@ import 'package:iconly/iconly.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:we_care/main.dart';
+import 'package:we_care/utils/colors.dart';
+import 'package:we_care/utils/reusable_component.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -223,11 +225,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             // ================= SAVE =================
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: loading ? null : updateProfile,
+              child: GestureDetector(
+                onTap: loading ? null : updateProfile,
                 child: loading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Save Changes"),
+                    : const CustomButton(
+                        name: "Save Changes",
+                        color: darkGreen,
+                      ),
               ),
             ),
           ],

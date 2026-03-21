@@ -29,7 +29,15 @@ class ProfileScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
         elevation: 0,
         title: const Text("Profile", style: TextStyle(color: darkGreen)),
-        actions: const [Icon(IconlyLight.setting, color: darkGreen)],
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, "/editProfile");
+            },
+            child: Icon(IconlyLight.setting, color: darkGreen),
+          ),
+          SizedBox(width: 10),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -110,6 +118,8 @@ class ProfileScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 6.0),
                   child: GestureDetector(
                     onTap: () {
+                      Navigator.pushNamed(context, '/verifyMe');
+
                       if (verification == "Not Applied") {
                         Navigator.pushNamed(context, '/verifyMe');
                       } else {

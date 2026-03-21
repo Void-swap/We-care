@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:lottie/lottie.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:we_care/screens/form.dart';
+import 'package:we_care/screens/onboard/form_screen.dart';
 import 'package:we_care/utils/colors.dart';
 
 class VerifyOtpScreen extends StatefulWidget {
@@ -52,10 +52,21 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
 
   // 🔹 VERIFY OTP
   Future<void> _verifyOtp() async {
-    if (_otpCode.length != otpLength) {
+    final rawOtp = _controllers.map((c) => c.text).join();
+    final otp = rawOtp.replaceAll(RegExp(r'\s+'), '');
+
+    print("========== OTP DEBUG ==========");
+    print("Email: ${widget.email}");
+    print("Raw OTP: $rawOtp");
+    print("Clean OTP: $otp");
+    print("Length: ${otp.length}");
+    print("Expected Length: $otpLength");
+    print("================================");
+
+    if (otp.length != otpLength) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter the complete 8-digit code"),
+        SnackBar(
+          content: Text("OTP incomplete (${otp.length}/$otpLength)"),
           backgroundColor: Colors.red,
         ),
       );
@@ -65,27 +76,47 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
     setState(() => _loading = true);
 
     try {
-      final res = await supabase.auth.verifyOTP(
-        type: OtpType.email,
-        token: _otpCode,
-        email: widget.email,
-      );
+      AuthResponse? res;
+
+      // 🔥 TRY EMAIL TYPE FIRST
+      try {
+        print("Trying OtpType.email...");
+        res = await supabase.auth.verifyOTP(
+          type: OtpType.email,
+          token: otp,
+          email: widget.email,
+        );
+        print("SUCCESS with email type");
+      } catch (e) {
+        print("❌ Email type failed: $e");
+
+        // 🔥 FALLBACK → SIGNUP TYPE
+        print("Trying OtpType.signup...");
+        res = await supabase.auth.verifyOTP(
+          type: OtpType.signup,
+          token: otp,
+          email: widget.email,
+        );
+        print("SUCCESS with signup type");
+      }
 
       final user = res.user;
 
+      print("User after verify: $user");
+
       if (user != null) {
-        // 🔥 Set password after verification
         final box = GetStorage();
         final pendingPassword = box.read('pendingPassword');
 
         if (pendingPassword != null) {
+          print("Setting password...");
           await supabase.auth.updateUser(
             UserAttributes(password: pendingPassword),
           );
-
-          box.remove('pendingPassword');
-          box.remove('pendingEmail');
         }
+
+        box.remove('pendingPassword');
+        box.remove('pendingEmail');
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -94,18 +125,22 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
           ),
         );
 
-        // 👉 Go to role selection
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => RoleSelectionScreen(email: widget.email),
           ),
         );
+      } else {
+        throw Exception("User is null after verification");
       }
-    } on AuthException catch (e) {
+    } catch (e, st) {
+      print("❌ FINAL ERROR: $e");
+      print("STACK: $st");
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Invalid code: ${e.message}'),
+          content: Text("Verification failed: $e"),
           backgroundColor: Colors.red,
         ),
       );

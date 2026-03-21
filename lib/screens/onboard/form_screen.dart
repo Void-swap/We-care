@@ -15,6 +15,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:vibration/vibration.dart';
 import 'package:we_care/utils/colors.dart';
+import 'package:we_care/utils/reusable_component.dart';
 import 'package:we_care/utils/reusable_screen.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
@@ -182,51 +183,6 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   }
 }
 
-class CustomButton extends StatelessWidget {
-  final String name;
-  final Color color;
-  const CustomButton({super.key, required this.name, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 50,
-      // width: 109,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(5.0),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x40000000),
-            blurRadius: 10,
-            spreadRadius: 0,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min, // Make width as wide as text
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: color == darkGreen ? primaryWhite : primaryBlack,
-                height: (24 / 16),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class FormScreen extends StatefulWidget {
   final String email;
   final String role;
@@ -276,7 +232,6 @@ class _FormScreenState extends State<FormScreen> {
 
     return file;
   }
-
 
   @override
   Widget build(BuildContext context) {

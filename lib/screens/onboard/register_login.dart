@@ -6,9 +6,7 @@ import 'package:iconly/iconly.dart';
 import 'package:lottie/lottie.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:we_care/main.dart';
-import 'package:we_care/screens/form.dart';
-import 'package:we_care/screens/signUp.dart';
-import 'package:we_care/screens/verifyOTP.dart';
+import 'package:we_care/screens/onboard/verifyOTP.dart';
 import 'package:we_care/utils/colors.dart';
 
 class RegisterLoginScreen extends StatefulWidget {
@@ -47,6 +45,7 @@ class _RegisterLoginScreenState extends State<RegisterLoginScreen> {
 
       if (_passwordController.text != _confirmPasswordController.text) {
         _showLottieAnimation(context, 'error');
+        await Future.delayed(const Duration(seconds: 3));
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -120,6 +119,7 @@ class _RegisterLoginScreenState extends State<RegisterLoginScreen> {
 
         if (user != null) {
           _showLottieAnimation(context, 'success');
+          await Future.delayed(const Duration(seconds: 3));
 
           String uid = user.id;
 
@@ -313,31 +313,34 @@ class _RegisterLoginScreenState extends State<RegisterLoginScreen> {
   //   }
   // }
 
-  void _showLottieAnimation(BuildContext context, String animationType) {
+  Future<void> _showLottieAnimation(
+    BuildContext context,
+    String animationType,
+  ) async {
     showDialog(
       barrierColor: Colors.transparent,
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (context) {
         return Dialog(
           backgroundColor: Colors.transparent,
           child: Center(
             child: Lottie.asset(
               'assets/lottie/$animationType.json',
-              width: 300,
-              height: 300,
+              width: 250,
+              height: 250,
               repeat: false,
-              onLoaded: (composition) {
-                // Use the composition duration to delay closing
-                Future.delayed(const Duration(seconds: 2), () {
-                  Navigator.of(context).pop();
-                });
-              },
             ),
           ),
         );
       },
     );
+
+    await Future.delayed(const Duration(seconds: 3));
+
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
   }
 
   @override

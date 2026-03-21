@@ -1,15 +1,107 @@
 import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:path/path.dart' as path;
 
 class VerifyMe extends StatefulWidget {
   const VerifyMe({super.key});
 
   @override
-  _VerifyMeState createState() => _VerifyMeState();
+  State<VerifyMe> createState() => _VerifyMeState();
 }
 
 class _VerifyMeState extends State<VerifyMe> {
+  final _formKey = GlobalKey<FormState>();
+  final box = GetStorage();
+  final supabase = Supabase.instance.client;
+
+  final TextEditingController motivationController = TextEditingController();
+  final TextEditingController experienceController = TextEditingController();
+
+  final ImagePicker picker = ImagePicker();
+
+  XFile? file;
+  bool loading = false;
+
+  // ================= PICK FILE =================
+  Future<void> pickFile() async {
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+
+    if (picked != null && mounted) {
+      setState(() => file = picked);
+    }
+  }
+
+  // ================= SUBMIT =================
+  Future<void> submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (file == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Upload document")));
+      return;
+    }
+
+    setState(() => loading = true);
+
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) throw Exception("User not logged in");
+
+      final fileName =
+          "verification_${user.id}_${DateTime.now().millisecondsSinceEpoch}.${path.extension(file!.path)}";
+
+      final filePath = "docs/$fileName";
+
+      // ===== UPLOAD =====
+      if (kIsWeb) {
+        final bytes = await file!.readAsBytes();
+        await supabase.storage
+            .from('verification')
+            .uploadBinary(filePath, bytes);
+      } else {
+        await supabase.storage
+            .from('verification')
+            .upload(filePath, File(file!.path));
+      }
+
+      final fileUrl = supabase.storage
+          .from('verification')
+          .getPublicUrl(filePath);
+
+      // ===== INSERT INTO DB =====
+      await supabase.from('verification').insert({
+        'user_id': user.id,
+        'user_name': box.read('userData')['name'], // ✅ NEW FIELD
+        'motivation': motivationController.text.trim(),
+        'experience': experienceController.text.trim(),
+        'document_url': fileUrl,
+        'status': 'pending',
+        'comments': '',
+      });
+      if (!mounted) return;
+
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Verification submitted ✅")));
+    } catch (e) {
+      if (!mounted) return;
+      print(e);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  // ================= UI =================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,74 +109,58 @@ class _VerifyMeState extends State<VerifyMe> {
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: Form(
+              key: _formKey,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    // ================= MOTIVATION =================
+                    const Text(
                       "What inspires you to volunteer on this platform*",
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16,
-                        height: (20 / 16),
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 10),
-                    const SizedBox(height: 5),
                     TextFormField(
+                      controller: motivationController,
                       maxLines: 4,
                       decoration: const InputDecoration(
                         hintText: 'Start typing here...',
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your response';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {},
+                      validator: (v) => v!.isEmpty ? "Required" : null,
                     ),
+
                     const SizedBox(height: 20),
-                    Text(
+
+                    // ================= EXPERIENCE =================
+                    const Text(
                       "Share past experiences that made a meaningful impact*",
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16,
-                        height: (20 / 16),
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
+                      controller: experienceController,
                       maxLines: 4,
                       decoration: const InputDecoration(
-                        hintText: 'Start typing here..."',
+                        hintText: 'Start typing here...',
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your response';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        // _pastExperience = value;
-                      },
+                      validator: (v) => v!.isEmpty ? "Required" : null,
                     ),
+
                     const SizedBox(height: 20),
-                    Text(
+
+                    // ================= DOCUMENT =================
+                    const Text(
                       "Official Organizational Document",
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16,
-                        height: (20 / 16),
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
+
                     GestureDetector(
-                      // onTap: _pickCV,
+                      onTap: pickFile,
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -92,29 +168,38 @@ class _VerifyMeState extends State<VerifyMe> {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.grey),
                         ),
-                        child: Text(
-                          'Tap to select your CV',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall!.copyWith(color: Colors.black),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              file != null
+                                  ? "Selected"
+                                  : "Tap to upload document",
+                            ),
+                            const Icon(Icons.upload_file),
+                          ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
                   ],
                 ),
               ),
             ),
           ),
+
+          // ================= BUTTON =================
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 47),
+              padding: const EdgeInsets.only(bottom: 40),
               child: SizedBox(
-                height: 56,
+                width: 200,
+                height: 50,
                 child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('Apply'),
+                  onPressed: loading ? null : submit,
+                  child: loading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Apply'),
                 ),
               ),
             ),

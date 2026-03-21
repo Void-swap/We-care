@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:we_care/screens/first.dart';
-import 'package:we_care/screens/issue.dart';
+import 'package:we_care/screens/issue/issue_screen.dart';
+import 'package:we_care/screens/onboard/register_login.dart';
 import 'package:we_care/screens/profile/edit_profile.dart';
 import 'package:we_care/screens/profile/profile_screen.dart';
 import 'package:we_care/screens/profile/verify_me.dart';
-import 'package:we_care/screens/signIn.dart';
 import 'package:we_care/screens/splash.dart';
 import 'package:we_care/utils/colors.dart';
 import 'package:get_storage/get_storage.dart';
@@ -19,16 +19,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // await Firebase.initializeApp(
-  //for APP initialize in main & web in future
-  //   options: const FirebaseOptions(
-  //     apiKey: "AIzaSyBpZcfdbZoBX_rHNa7K7TMNU7Y-yjoFzlk",
-  //     projectId: "mumbai-hacks9",
-  //     storageBucket: "mumbai-hacks9.appspot.com",
-  //     messagingSenderId: "727309139299",
-  //     appId: "1:727309139299:web:71f15c8008a12a95d6e756",
-  //   ),
-  // );
   await GetStorage.init();
 
   await Supabase.initialize(
@@ -52,13 +42,8 @@ class MyApp extends StatelessWidget {
         '/registerOrLogin': (context) => const RegisterLoginScreen(),
         '/home': (context) => const HomePage(),
         '/editProfile': (context) => const EditProfileScreen(),
-
         '/verifyMe': (context) => const VerifyMe(),
-        '/createEvent': (context) => const CircularProgressIndicator(),
-        '/verifyEvent': (context) => const CircularProgressIndicator(),
-        '/createVenue': (context) => const CircularProgressIndicator(),
-        '/createCareer': (context) => const CircularProgressIndicator(),
-        '/myEvents': (context) => const CircularProgressIndicator(),
+        '/analytics': (context) => const VerifyMe(),
       },
       theme: ThemeData(
         primaryColor: darkGreen,

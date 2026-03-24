@@ -11,9 +11,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as path;
-import 'package:we_care/main.dart';
-import 'package:we_care/services/services.dart';
-import 'package:we_care/utils/colors.dart';
+import 'package:spot_it/main.dart';
+import 'package:spot_it/services/services.dart';
+import 'package:spot_it/utils/colors.dart';
 import 'package:latlong2/latlong.dart';
 
 void logg(String msg) {

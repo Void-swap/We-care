@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:we_care/utils/colors.dart';
-import 'package:we_care/utils/reusable_component.dart';
+import 'package:spot_it/utils/colors.dart';
+import 'package:spot_it/utils/reusable_component.dart';
 
 class AdminVerificationScreen extends StatefulWidget {
   const AdminVerificationScreen({super.key});
@@ -197,13 +197,11 @@ class _VerificationDetailScreenState extends State<VerificationDetailScreen> {
     try {
       final userId = widget.data['user_id'];
 
-      // 🔥 update verification table
       await supabase
           .from('verification')
           .update({'status': status})
           .eq('id', widget.data['id']);
 
-      // 🔥 update users table
       if (status == 'approved')
         await supabase
             .from('users')

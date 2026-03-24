@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:iconly/iconly.dart';
-import 'package:we_care/utils/colors.dart';
+import 'package:spot_it/utils/colors.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -32,11 +32,18 @@ class ProfileScreen extends StatelessWidget {
         actions: [
           GestureDetector(
             onTap: () {
+              Navigator.pushNamed(context, "/adminVerify");
+            },
+            child: Icon(IconlyLight.tick_square, color: darkGreen),
+          ),
+          SizedBox(width: 10),
+          GestureDetector(
+            onTap: () {
               Navigator.pushNamed(context, "/editProfile");
             },
             child: Icon(IconlyLight.setting, color: darkGreen),
           ),
-          SizedBox(width: 10),
+          SizedBox(width: 20),
         ],
       ),
       body: SingleChildScrollView(

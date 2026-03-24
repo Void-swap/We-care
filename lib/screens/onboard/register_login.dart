@@ -5,9 +5,9 @@ import 'package:get_storage/get_storage.dart';
 import 'package:iconly/iconly.dart';
 import 'package:lottie/lottie.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:we_care/main.dart';
-import 'package:we_care/screens/onboard/verifyOTP.dart';
-import 'package:we_care/utils/colors.dart';
+import 'package:spot_it/main.dart';
+import 'package:spot_it/screens/onboard/verifyOTP.dart';
+import 'package:spot_it/utils/colors.dart';
 
 class RegisterLoginScreen extends StatefulWidget {
   const RegisterLoginScreen({super.key});

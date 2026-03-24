@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:lottie/lottie.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:we_care/screens/onboard/form_screen.dart';
-import 'package:we_care/utils/colors.dart';
+import 'package:spot_it/screens/onboard/form_screen.dart';
+import 'package:spot_it/utils/colors.dart';
 
 class VerifyOtpScreen extends StatefulWidget {
   final String email;

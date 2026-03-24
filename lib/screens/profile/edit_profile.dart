@@ -5,9 +5,9 @@ import 'package:get_storage/get_storage.dart';
 import 'package:iconly/iconly.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:we_care/main.dart';
-import 'package:we_care/utils/colors.dart';
-import 'package:we_care/utils/reusable_component.dart';
+import 'package:spot_it/main.dart';
+import 'package:spot_it/utils/colors.dart';
+import 'package:spot_it/utils/reusable_component.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});

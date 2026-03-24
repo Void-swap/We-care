@@ -7,10 +7,11 @@ import 'package:get_storage/get_storage.dart';
 import 'package:iconly/iconly.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:we_care/screens/issue/issue_detail.dart';
-import 'package:we_care/screens/issue/create_issue.dart';
-import 'package:we_care/services/services.dart';
-import 'package:we_care/utils/colors.dart';
+import 'package:spot_it/main.dart';
+import 'package:spot_it/screens/issue/issue_detail.dart';
+import 'package:spot_it/screens/issue/create_issue.dart';
+import 'package:spot_it/services/services.dart';
+import 'package:spot_it/utils/colors.dart';
 
 //////////////////////////////////////////////////////////
 // STATUS CHIP
@@ -189,14 +190,14 @@ class StatusChip extends StatelessWidget {
           showDialog(
             context: context,
             builder: (_) => ActionDialog(
-              image: "svg/doodle.svg",
+              image: "svg/checklist.svg",
               title: "Mark this issue as resolved?",
 
               subtitle: "Are you sure you want to mark and send for auditing",
               secondaryText: "Not yet",
               onSecondary: () => Navigator.pop(context),
 
-              primaryText: "Mark as resolved",
+              primaryText: "Mark resolved",
               onPrimary: () async {
                 Navigator.pop(context);
 
@@ -336,7 +337,7 @@ class _VerificationFormScreenState extends State<VerificationFormScreen> {
   XFile? image;
   bool loading = false;
 
-  // ================= PICK IMAGE =================
+  // 📸 CAMERA ONLY
   Future<void> pickImage() async {
     final picked = await picker.pickImage(source: ImageSource.camera);
 
@@ -345,7 +346,7 @@ class _VerificationFormScreenState extends State<VerificationFormScreen> {
     }
   }
 
-  // ================= SUBMIT =================
+  // 🚀 SUBMIT
   Future<void> submit() async {
     if (image == null) {
       ScaffoldMessenger.of(
@@ -360,13 +361,11 @@ class _VerificationFormScreenState extends State<VerificationFormScreen> {
       final issueId = widget.issue['id'];
       final fileName =
           "after_$issueId-${DateTime.now().millisecondsSinceEpoch}";
+      final path = 'after/$fileName';
 
-      String path = 'after/$fileName';
-
-      // ✅ WEB vs MOBILE upload
+      // ✅ upload
       if (kIsWeb) {
         final bytes = await image!.readAsBytes();
-
         await widget.supabase.storage.from('issues').uploadBinary(path, bytes);
       } else {
         await widget.supabase.storage
@@ -378,7 +377,7 @@ class _VerificationFormScreenState extends State<VerificationFormScreen> {
           .from('issues')
           .getPublicUrl(path);
 
-      // ===== UPDATE DB =====
+      // ✅ update db
       await widget.supabase
           .from('issues')
           .update({
@@ -413,71 +412,122 @@ class _VerificationFormScreenState extends State<VerificationFormScreen> {
     }
   }
 
-  // ================= UI =================
+  // 🎨 UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Verify Issue")),
-      body: Padding(
+      appBar: AppBar(
+        title: const Text("Verify Issue"),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+      ),
+      body: ListView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // 📸 IMAGE PREVIEW (FIXED)
-            GestureDetector(
-              onTap: pickImage,
-              child: Container(
-                height: 180,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: image != null
-                    ? kIsWeb
+        children: [
+          // ================= IMAGE =================
+          GestureDetector(
+            onTap: pickImage,
+            child: Container(
+              height: 220,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.grey.shade200,
+              ),
+              child: image != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: kIsWeb
                           ? Image.network(image!.path, fit: BoxFit.cover)
-                          : Image.file(File(image!.path), fit: BoxFit.cover)
-                    : const Center(child: Text("Tap to capture after image")),
-              ),
+                          : Image.file(File(image!.path), fit: BoxFit.cover),
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.camera_alt, size: 40),
+                        SizedBox(height: 8),
+                        Text("Capture After Image"),
+                      ],
+                    ),
             ),
+          ),
 
-            const SizedBox(height: 20),
+          const SizedBox(height: 20),
 
-            // 📝 DESCRIPTION
-            TextField(
+          // ================= DESCRIPTION =================
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: TextField(
               controller: descController,
-              decoration: const InputDecoration(labelText: "Work description"),
-            ),
-
-            const SizedBox(height: 20),
-
-            // 👤 AUTO INFO
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Resolved by: ${widget.userName}"),
-            ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Role: ${widget.role}"),
-            ),
-
-            const Spacer(),
-
-            // 🚀 SUBMIT
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: loading ? null : submit,
-                child: loading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Submit Verification"),
+              maxLines: 3,
+              decoration: const InputDecoration(
+                hintText: "Describe the work done...",
+                border: InputBorder.none,
+                prefixIcon: Icon(IconlyLight.document),
               ),
             ),
-          ],
-        ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // ================= INFO CARD =================
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(IconlyLight.profile),
+                    const SizedBox(width: 8),
+                    Text("Resolved by: ${widget.userName}"),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(IconlyLight.work),
+                    const SizedBox(width: 8),
+                    Text("Role: ${widget.role}"),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 30),
+
+          // ================= SUBMIT =================
+          SizedBox(
+            height: 55,
+            child: ElevatedButton(
+              onPressed: loading ? null : submit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: darkGreen,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: loading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text(
+                      "Submit Verification",
+                      style: TextStyle(color: Colors.white),
+                    ),
+            ),
+          ),
+        ],
       ),
     );
   }
-} //////////////////////////////////////////////////////////
+}
 // LIKE BUTTON (FIXED)
 //////////////////////////////////////////////////////////
 
@@ -596,33 +646,48 @@ class CommentButton extends StatelessWidget {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text("Add Comment"),
-            content: TextField(controller: controller),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  final user = box.read('userData')['name'];
+            title: const Text(
+              "Add Comment",
+              style: TextStyle(color: darkGreen, fontWeight: FontWeight.w500),
+              textAlign: TextAlign.center,
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomTextField(
+                  hintText: "Type your comment here...",
+                  icon: IconlyLight.paper,
+                  controller: controller,
+                ),
+                SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () async {
+                    final user = box.read('userData')['name'];
 
-                  final newComment = {
-                    "user": user,
-                    "text": controller.text,
-                    "created_at": DateTime.now().toIso8601String(),
-                  };
+                    final newComment = {
+                      "user": user,
+                      "text": controller.text,
+                      "created_at": DateTime.now().toIso8601String(),
+                    };
 
-                  final List comments = issue['comments'] ?? [];
-                  comments.add(newComment);
+                    final List comments = issue['comments'] ?? [];
+                    comments.add(newComment);
 
-                  await supabase
-                      .from('issues')
-                      .update({'comments': comments})
-                      .eq('id', issue['id']);
+                    await supabase
+                        .from('issues')
+                        .update({'comments': comments})
+                        .eq('id', issue['id']);
 
-                  Navigator.pop(context);
-                  refresh();
-                },
-                child: const Text("Post"),
-              ),
-            ],
+                    Navigator.pop(context);
+                    refresh();
+                  },
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: CustomButton(name: "Post", color: darkGreen),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -698,14 +763,17 @@ class ActionDialog extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: onSecondary,
-                    child: CustomButton(name: secondaryText, color: primaryRed),
+                    child: CustomButton(
+                      name: secondaryText,
+                      color: primaryWhite,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: GestureDetector(
                     onTap: onPrimary,
-                    child: CustomButton(name: primaryText, color: primaryGreen),
+                    child: CustomButton(name: primaryText, color: darkGreen),
                   ),
                 ),
               ],

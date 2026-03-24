@@ -8,8 +8,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:we_care/utils/colors.dart';
-import 'package:we_care/utils/reusable_component.dart';
+import 'package:spot_it/utils/colors.dart';
+import 'package:spot_it/utils/reusable_component.dart';
 
 class IssueDetailScreen extends StatefulWidget {
   final Map<String, dynamic> issue;
@@ -101,7 +101,7 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
       appBar: AppBar(
         title: const Text("Issue Detail"),
         backgroundColor: Colors.white,
-        actions: const [Icon(IconlyLight.send), SizedBox(width: 12)],
+        // actions: const [Icon(IconlyLight.send), SizedBox(width: 12)],
       ),
 
       body: SingleChildScrollView(
@@ -156,7 +156,7 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
                                         refresh: refresh,
                                       ),
                                       const Icon(
-                                        IconlyLight.bookmark,
+                                        IconlyLight.send,
                                         color: Colors.white,
                                       ),
                                     ],
@@ -362,7 +362,7 @@ class _IssueDetailScreenState extends State<IssueDetailScreen> {
                               Marker(
                                 point: LatLng(lat, lng),
                                 child: const Icon(
-                                  Icons.location_on,
+                                  IconlyBold.location,
                                   color: darkGreen,
                                 ),
                               ),

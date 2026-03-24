@@ -14,9 +14,9 @@ import 'package:mailer/smtp_server/gmail.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:vibration/vibration.dart';
-import 'package:we_care/utils/colors.dart';
-import 'package:we_care/utils/reusable_component.dart';
-import 'package:we_care/utils/reusable_screen.dart';
+import 'package:spot_it/utils/colors.dart';
+import 'package:spot_it/utils/reusable_component.dart';
+import 'package:spot_it/utils/reusable_screen.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
   final String email;
@@ -126,6 +126,39 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 15),
+                  GestureDetector(
+                    onTap: () {
+                      _onRoleSelected('Field Engineer');
+                    },
+                    child: Container(
+                      height: 50,
+                      width: 370,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5.0),
+                        color: _selectedRole == 'Field Engineer'
+                            ? darkGreen
+                            : const Color(0xFFf2f2f2),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Field Engineer",
+                          style: TextStyle(
+                            // fontFamily: "Poppins",
+                            fontSize: 20,
+                            fontWeight: _selectedRole == 'Field Engineer'
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                            color: _selectedRole == 'Field Engineer'
+                                ? Colors.white
+                                : const Color(0xff000000),
+                            height: 30 / 20,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -212,8 +245,10 @@ class _FormScreenState extends State<FormScreen> {
   List<String> getRoleOptions() {
     if (widget.role == 'Communities') {
       return ['NGO', 'NSS'];
-    } else {
+    } else if (widget.role == 'Citizen') {
       return ['Citizen'];
+    } else {
+      return ['Field Engineer'];
     }
   }
 

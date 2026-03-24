@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.we_care"
+    namespace = "com.example.spot_it"
 
     // 🔥 REQUIRED FOR mobile_scanner / camera
     compileSdk = 36
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.we_care"
+        applicationId = "com.example.spot_it"
 
         // 🔥 REQUIRED BY camera-core (min 23)
         minSdk = 23

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:we_care/utils/colors.dart';
+import 'package:spot_it/utils/colors.dart';
 
 class CustomSplash extends StatefulWidget {
   const CustomSplash({

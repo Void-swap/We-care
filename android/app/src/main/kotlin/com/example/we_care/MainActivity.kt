@@ -1,4 +1,4 @@
-package com.example.we_care
+package com.example.spot_it
 
 import io.flutter.embedding.android.FlutterActivity
 

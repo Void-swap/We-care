@@ -1,16 +1,19 @@
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:iconly/iconly.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:spot_it/screens/admin/analytics_dashboard.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:we_care/screens/issue/issue_detail.dart';
-import 'package:we_care/screens/issue/create_issue.dart';
-import 'package:we_care/services/services.dart';
-import 'package:we_care/utils/colors.dart';
-import 'package:we_care/utils/reusable_component.dart';
+import 'package:spot_it/screens/issue/issue_detail.dart';
+import 'package:spot_it/screens/issue/create_issue.dart';
+import 'package:spot_it/services/services.dart';
+import 'package:spot_it/utils/colors.dart';
+import 'package:spot_it/utils/reusable_component.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:screenshot/screenshot.dart';
+import 'dart:io';
 
 class IssueScreen extends StatefulWidget {
   const IssueScreen({super.key});
@@ -24,7 +27,7 @@ class _IssueScreenState extends State<IssueScreen> {
 
   List<Map<String, dynamic>> issues = [];
   bool loading = true;
-
+  final ScreenshotController screenshotController = ScreenshotController();
   @override
   void initState() {
     super.initState();
@@ -84,6 +87,37 @@ class _IssueScreenState extends State<IssueScreen> {
     return months[m];
   }
 
+  Future<void> shareIssueCard(Map<String, dynamic> issue) async {
+    final text =
+        "🚧 Civic Issue Reported\n\n"
+        "${issue['title']}\n"
+        "📍 ${issue['location']?['address'] ?? ''}\n\n"
+        "Reported via WeCare";
+
+    await Share.share(text);
+    // try {
+    //   final image = await screenshotController.capture();
+
+    //   if (image == null) return;
+
+    //   final directory = await getTemporaryDirectory();
+    //   final filePath = '${directory.path}/issue.png';
+
+    //   final file = File(filePath);
+    //   await file.writeAsBytes(image);
+
+    //   final text =
+    //       "🚧 Civic Issue Reported\n\n"
+    //       "${issue['title']}\n"
+    //       "📍 ${issue['location']?['address'] ?? ''}\n\n"
+    //       "Reported via WeCare";
+
+    //   await Share.shareXFiles([XFile(filePath)], text: text);
+    // } catch (e) {
+    //   debugPrint("Share error: $e");
+    // }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,6 +130,16 @@ class _IssueScreenState extends State<IssueScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(IconlyBroken.chart),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
+              );
+              fetchIssues();
+            },
+          ),
+          IconButton(
             icon: const Icon(IconlyBroken.plus),
             onPressed: () async {
               await Navigator.push(
@@ -105,10 +149,11 @@ class _IssueScreenState extends State<IssueScreen> {
               fetchIssues();
             },
           ),
+          SizedBox(width: 20),
         ],
       ),
       body: loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: darkGreen))
           : ListView.builder(
               padding: const EdgeInsets.all(12),
               itemCount: issues.length,
@@ -145,13 +190,15 @@ class _IssueScreenState extends State<IssueScreen> {
                           child: Stack(
                             children: [
                               Positioned.fill(
-                                child: Image.network(
-                                  issue['before_image'] ?? "",
-                                  fit: BoxFit.cover,
+                                child: IssueImageSlider(
+                                  beforeImage: issue['before_image'] ?? "",
+                                  afterImage: followUp['after_image'],
                                 ),
                               ),
                               Positioned.fill(
-                                child: Container(color: Colors.black45),
+                                child: IgnorePointer(
+                                  child: Container(color: Colors.black45),
+                                ),
                               ),
 
                               Positioned.fill(
@@ -171,11 +218,15 @@ class _IssueScreenState extends State<IssueScreen> {
                                             supabase: supabase,
                                             refresh: fetchIssues,
                                           ),
-                                          const Row(
+                                          Row(
                                             children: [
-                                              const Icon(
-                                                IconlyLight.bookmark,
-                                                color: Colors.white,
+                                              GestureDetector(
+                                                onTap: () =>
+                                                    shareIssueCard(issue),
+                                                child: const Icon(
+                                                  IconlyLight.send,
+                                                  color: Colors.white,
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -253,158 +304,217 @@ class _IssueScreenState extends State<IssueScreen> {
                         ),
                       ),
 
-                      // ================= OVERLAY RESOLUTION CARD =================
-                      if (isVerified && hasAfterImage)
-                        Positioned(
-                          top: 32, // 👈 pushed slightly down
-                          left: 16,
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 8, bottom: 8),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Stack(
-                                children: [
-                                  // AFTER IMAGE
-                                  Positioned.fill(
-                                    child: Image.network(
-                                      followUp['after_image'],
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
+                      // // ================= OVERLAY RESOLUTION CARD =================
+                      // if (isVerified && hasAfterImage)
+                      //   Positioned(
+                      //     top: 32, // 👈 pushed slightly down
+                      //     left: 16,
+                      //     right: 0,
+                      //     bottom: 0,
+                      //     child: Container(
+                      //       margin: const EdgeInsets.only(right: 8, bottom: 8),
+                      //       decoration: BoxDecoration(
+                      //         borderRadius: BorderRadius.circular(16),
+                      //         boxShadow: const [
+                      //           BoxShadow(
+                      //             color: Colors.black26,
+                      //             blurRadius: 10,
+                      //             offset: Offset(0, 4),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //       child: ClipRRect(
+                      //         borderRadius: BorderRadius.circular(16),
+                      //         child: Stack(
+                      //           children: [
+                      //             // AFTER IMAGE
+                      //             Positioned.fill(
+                      //               child: Image.network(
+                      //                 followUp['after_image'],
+                      //                 fit: BoxFit.cover,
+                      //               ),
+                      //             ),
 
-                                  // GRADIENT
-                                  Positioned.fill(
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.transparent,
-                                            Colors.black87,
-                                          ],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                      //             // GRADIENT
+                      //             Positioned.fill(
+                      //               child: Container(
+                      //                 decoration: const BoxDecoration(
+                      //                   gradient: LinearGradient(
+                      //                     colors: [
+                      //                       Colors.transparent,
+                      //                       Colors.black87,
+                      //                     ],
+                      //                     begin: Alignment.topCenter,
+                      //                     end: Alignment.bottomCenter,
+                      //                   ),
+                      //                 ),
+                      //               ),
+                      //             ),
 
-                                  // VERIFIED BADGE
-                                  Positioned(
-                                    top: 10,
-                                    left: 10,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: const Text(
-                                        "Verified",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                      //             // VERIFIED BADGE
+                      //             StatusChip(
+                      //               issue: issue,
+                      //               supabase: supabase,
+                      //               refresh: fetchIssues,
+                      //             ),
 
-                                  // 🔥 SAME STRUCTURE AS BASE CARD
-                                  Positioned(
-                                    left: 12,
-                                    right: 12,
-                                    bottom: 12,
-                                    child: Row(
-                                      children: [
-                                        // TEXT SIDE
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                issue['title'] ?? "",
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
+                      //             // 🔥 SAME STRUCTURE AS BASE CARD
+                      //             Positioned(
+                      //               left: 12,
+                      //               right: 12,
+                      //               bottom: 12,
+                      //               child: Row(
+                      //                 children: [
+                      //                   // TEXT SIDE
+                      //                   Expanded(
+                      //                     child: Column(
+                      //                       crossAxisAlignment:
+                      //                           CrossAxisAlignment.start,
+                      //                       children: [
+                      //                         Text(
+                      //                           issue['title'] ?? "",
+                      //                           maxLines: 1,
+                      //                           overflow: TextOverflow.ellipsis,
+                      //                           style: const TextStyle(
+                      //                             color: Colors.white,
+                      //                             fontSize: 18,
+                      //                             fontWeight: FontWeight.w500,
+                      //                           ),
+                      //                         ),
+                      //                         const SizedBox(height: 4),
 
-                                              // 🔥 description replaces old subtitle
-                                              if (followUp['description'] !=
-                                                  null)
-                                                Text(
-                                                  followUp['description'],
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                    color: Colors.white70,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
+                      //                         // 🔥 description replaces old subtitle
+                      //                         if (followUp['description'] !=
+                      //                             null)
+                      //                           Text(
+                      //                             followUp['description'],
+                      //                             maxLines: 1,
+                      //                             overflow:
+                      //                                 TextOverflow.ellipsis,
+                      //                             style: const TextStyle(
+                      //                               color: Colors.white70,
+                      //                               fontSize: 14,
+                      //                             ),
+                      //                           ),
 
-                                              const SizedBox(height: 4),
+                      //                         const SizedBox(height: 4),
 
-                                              Text(
-                                                "Resolved by ${followUp['resolved_by'] ?? ""}",
-                                                style: const TextStyle(
-                                                  color: Colors.white70,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
+                      //                         Text(
+                      //                           "Resolved by ${followUp['resolved_by'] ?? ""}",
+                      //                           style: const TextStyle(
+                      //                             color: Colors.white70,
+                      //                             fontSize: 12,
+                      //                           ),
+                      //                         ),
+                      //                       ],
+                      //                     ),
+                      //                   ),
 
-                                        // 🔥 SAME ACTION BUTTONS
-                                        Row(
-                                          children: [
-                                            LikeButton(
-                                              issue: issue,
-                                              supabase: supabase,
-                                              refresh: fetchIssues,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            CommentButton(
-                                              issue: issue,
-                                              supabase: supabase,
-                                              refresh: fetchIssues,
-                                            ),
-                                            const SizedBox(width: 8),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                      //                   // 🔥 SAME ACTION BUTTONS
+                      //                   Row(
+                      //                     children: [
+                      //                       LikeButton(
+                      //                         issue: issue,
+                      //                         supabase: supabase,
+                      //                         refresh: fetchIssues,
+                      //                       ),
+                      //                       const SizedBox(width: 8),
+                      //                       CommentButton(
+                      //                         issue: issue,
+                      //                         supabase: supabase,
+                      //                         refresh: fetchIssues,
+                      //                       ),
+                      //                       const SizedBox(width: 8),
+                      //                     ],
+                      //                   ),
+                      //                 ],
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
                     ],
                   ),
                 );
               },
             ),
+    );
+  }
+}
+
+class IssueImageSlider extends StatefulWidget {
+  final String beforeImage;
+  final String? afterImage;
+
+  const IssueImageSlider({
+    super.key,
+    required this.beforeImage,
+    this.afterImage,
+  });
+
+  @override
+  State<IssueImageSlider> createState() => _IssueImageSliderState();
+}
+
+class _IssueImageSliderState extends State<IssueImageSlider> {
+  final PageController _controller = PageController();
+  int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.afterImage != null && widget.afterImage!.isNotEmpty) {
+      Future.delayed(const Duration(seconds: 3), () {
+        if (!mounted) return;
+        _controller.animateToPage(
+          1,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasAfter = widget.afterImage != null && widget.afterImage!.isNotEmpty;
+
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        PageView(
+          controller: _controller,
+          onPageChanged: (i) => setState(() => _index = i),
+          children: [
+            Image.network(widget.beforeImage, fit: BoxFit.cover),
+            if (hasAfter) Image.network(widget.afterImage!, fit: BoxFit.cover),
+          ],
+        ),
+
+        if (hasAfter)
+          Positioned(
+            bottom: 10,
+            child: Row(
+              children: List.generate(2, (i) {
+                return AnimatedContainer(
+                  curve: Curves.linear,
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: _index == i ? 36 : 16,
+                  height: _index == i ? 6 : 4,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    color: _index == i ? darkGreen : Colors.white54,
+                    shape: BoxShape.rectangle,
+                  ),
+                );
+              }),
+            ),
+          ),
+      ],
     );
   }
 }

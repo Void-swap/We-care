@@ -4,15 +4,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
+import 'package:spot_it/screens/admin/profile_verification.dart';
+import 'package:spot_it/screens/issue/create_issue.dart';
 import 'package:svg_flutter/svg.dart';
-import 'package:we_care/screens/first.dart';
-import 'package:we_care/screens/issue/issue_screen.dart';
-import 'package:we_care/screens/onboard/register_login.dart';
-import 'package:we_care/screens/profile/edit_profile.dart';
-import 'package:we_care/screens/profile/profile_screen.dart';
-import 'package:we_care/screens/profile/verify_me.dart';
-import 'package:we_care/screens/splash.dart';
-import 'package:we_care/utils/colors.dart';
+import 'package:spot_it/screens/admin/analytics_dashboard.dart';
+import 'package:spot_it/screens/first.dart';
+import 'package:spot_it/screens/issue/issue_screen.dart';
+import 'package:spot_it/screens/onboard/register_login.dart';
+import 'package:spot_it/screens/profile/edit_profile.dart';
+import 'package:spot_it/screens/profile/profile_screen.dart';
+import 'package:spot_it/screens/profile/verify_me.dart';
+import 'package:spot_it/screens/splash.dart';
+import 'package:spot_it/utils/colors.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -43,7 +46,9 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const HomePage(),
         '/editProfile': (context) => const EditProfileScreen(),
         '/verifyMe': (context) => const VerifyMe(),
-        '/analytics': (context) => const VerifyMe(),
+        '/adminVerify': (context) => const AdminVerificationScreen(),
+
+        '/analytics': (context) => const AdminDashboardScreen(),
       },
       theme: ThemeData(
         primaryColor: darkGreen,
@@ -151,11 +156,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    const InitialScreen(),
-    const IssueScreen(),
-    const ProfileScreen(),
-  ];
+  final List<Widget> _pages = [const IssueScreen(), const ProfileScreen()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -163,59 +164,109 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        items: [
-          _buildNavItem(IconlyBroken.home, IconlyBold.home, 'Home', 0),
-          _buildNavItem(IconlyBroken.search, IconlyBold.search, 'Search', 1),
-          _buildNavItem(
-            IconlyBroken.profile,
-            IconlyBold.profile,
-            'Settings',
-            2,
-          ),
-        ],
-        currentIndex: _currentIndex,
-        onTap: _onItemTapped,
-        // selectedItemColor: Colors.blue,
-        // unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
+  void _onAddPressed() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ReportIssueScreen()),
+    );
+  }
+
+  Widget _buildNavItem({
+    required int index,
+    required IconData icon,
+    required IconData activeIcon,
+    required String label,
+  }) {
+    final isSelected = _currentIndex == index;
+
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 16 : 0,
+          vertical: 10,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? darkGreen.withOpacity(0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Icon(isSelected ? activeIcon : icon, color: darkGreen, size: 26),
+
+            // 🔥 TEXT APPEARS ONLY WHEN ACTIVE
+            if (isSelected) ...[
+              const SizedBox(width: 8),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 300),
+                opacity: isSelected ? 1 : 0,
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: darkGreen,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 
-  BottomNavigationBarItem _buildNavItem(
-    IconData broken,
-    IconData bold,
-    String label,
-    int index,
-  ) {
-    final isSelected = _currentIndex == index;
-    return BottomNavigationBarItem(
-      backgroundColor: Colors.white,
-      icon: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(isSelected ? bold : broken, size: 30, color: darkGreen),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_currentIndex],
 
-          if (isSelected)
-            Container(
-              margin: const EdgeInsets.only(top: 15),
-              height: 5,
-              width: 24,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: darkGreen,
-              ),
-            ),
-        ],
+      // 🔥 FLOATING + BUTTON
+      floatingActionButton: FloatingActionButton(
+        onPressed: _onAddPressed,
+        backgroundColor: darkGreen,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
-      label: "",
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      // 🔥 CUSTOM NAV BAR
+      bottomNavigationBar: Container(
+        height: 65,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavItem(
+              index: 0,
+              icon: IconlyBroken.search,
+              activeIcon: IconlyBold.search,
+              label: "Issues",
+            ),
+
+            const SizedBox(width: 50), // space for FAB
+
+            _buildNavItem(
+              index: 1,
+              icon: IconlyBroken.profile,
+              activeIcon: IconlyBold.profile,
+              label: "Profile",
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

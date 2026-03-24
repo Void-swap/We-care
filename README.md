@@ -1,4 +1,4 @@
-# we_care
+# spot_it
 
 A new Flutter project.
 
